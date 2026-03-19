@@ -1,0 +1,116 @@
+DAY 1
+
+RST hayup - 192.168.84.130
+
+
+Main Objective
+
+1. Config D1 and D2 as DHCP server for VLAN 10
+ D1 distribute ip  address .100-.199
+ D2 distribute ip  address .200-.254
+
+
+!@D1
+conf t 
+ip dhcp excluded-address 10.2.1.1 10.2.1.99
+ip dhcp excluded-address 10.2.1.200 10.2.1.254
+!
+ip dhcp pool MGMTPOOL
+network 10.2.1.0 255.255.255.0
+default-router 10.2.1.1
+dns-server 10.2.1.1
+domain-name MGMT.COM
+end
+
+!@D2
+conf t 
+ip dhcp excluded-address 10.2.1.1 10.2.1.199
+!
+ip dhcp pool MGMTPOOL
+network 10.2.1.0 255.255.255.0
+default-router 10.2.1.2
+dns-server 10.2.1.2
+domain-name MGMT.COM
+end
+
+
+2. Config P1 and P2 as DHCP Clients for their VLANs
+
+!@A1
+conf t
+interface e0/0
+switchport mode access
+switchport access vlan 10
+end
+
+
+!@A2
+conf t
+interface e1/0
+switchport mode access
+switchport access vlan 10
+end
+
+
+!@P1
+conf t
+interface e0/0
+no shutdown
+ip add dhcp
+end
+
+
+!@P2
+conf t
+interface e1/0
+no shutdown
+ip add dhcp
+end
+
+
+===================================
+Exercise
+
+!@D1
+conf t 
+ip dhcp pool SEVERPOOL
+network 192.168.1.128 255.255.255.224
+default-router 192.168.1.129
+dns-server 192.168.1.129
+domain-name SERVER.COM
+exit
+interface e1/0
+switchport mode access
+switchport access vlan 100
+end
+
+
+!@D2
+conf t 
+ip dhcp pool DNSPOOL
+network 10.2.2.0 255.255.255.0
+default-router 10.2.2.2
+dns-server 10.2.2.2
+domain-name DNS.COM
+exit
+interface e1/0
+switchport mode access
+switchport access vlan 20
+end
+
+
+
+!@S1
+conf t
+interface e1/0
+no shutdown
+ip add dhcp
+end
+
+
+!@S2
+conf t
+interface e1/0
+no shutdown
+ip add dhcp
+end
